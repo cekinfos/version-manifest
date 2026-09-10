@@ -81,10 +81,17 @@ https://cekinfos.github.io/version-manifest/cekapp/version.json
 5. **push 前必須驗證 JSON 合法。** 一個多餘的逗號會讓全體使用者的版本檢查失敗。
 6. **快取約 10 分鐘。** GitHub Pages 固定回應 `Cache-Control: max-age=600`，push 後不會立即生效。
 
-## 備註：CekApp 的 STB 建置變體
+## 備註：CekApp 的三個發布通道
 
-CekApp 有 `Debug-STB` / `Release-STB` 建置設定（`DefineConstants=STB`），與一般版共用同一個
-`ApplicationId` 與版本號，因此目前讀到的是同一個 `android` 區塊。
+CekApp 有三個發布通道，各自的套件識別碼不同：
 
-若日後 STB 版改為獨立派發通路、需要與手機版不同的版本節奏，再新增 `androidStb` 區塊即可。
-目前刻意不預先建立，避免維護兩份實際上完全相同的資料。
+| 通道 | 套件 / bundle id | manifest 區塊 |
+|------|------------------|---------------|
+| iOS（App Store） | `com.cek.superbox` | `ios` |
+| Android 手機（Google Play） | `com.cek.cekcloud` | `android` |
+| Android TVBox（`Release-STB` 建置組態） | `com.cek.superboxapp` | **不適用** |
+
+TVBox 版以 APK 檔案側載派發，更新由既有的 APK 派發流程處理，**不納入版本檢查**，因此本清單
+不提供對應區塊。App 端在 `Release-STB` 建置中以 `#if STB` 完全停用版本檢查，不會讀取本清單。
+
+本清單刻意不儲存套件識別碼（見鐵則 1），上表僅供維運人員對照使用。
