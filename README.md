@@ -6,7 +6,7 @@
 採用靜態檔案託管而非自建後端，理由：
 
 - 雙平台（Android / iOS）共用同一份判斷來源，不需為 iOS 另外處理（Apple 無 in-app update API）
-- 可做強制更新（`minSupportedBuild`），這是 App Store 本身做不到的
+- 可做強制更新（更新一律強制，提示無法略過），這是 App Store 本身做不到的
 - 發布時機完全自控，不受 iTunes Lookup API 的 CDN 延遲影響
 
 ## 檔案結構
@@ -42,15 +42,17 @@ https://cekinfos.github.io/version-manifest/cekapp/version.json
 | `schemaVersion` | int | 結構版本。App 端讀到不認識的版本時應直接放棄檢查（靜默），不可誤判 |
 | `updatedAt` | string | 本檔最後更新時間（ISO 8601 UTC）。供人工確認 CDN 快取是否已更新 |
 | `android` / `ios` | object | 分平台區塊，兩者結構相同 |
-| `latestBuild` | int | 商店上架的最新 build，對應 csproj 的 `ApplicationVersion`。**唯一用於比對的欄位** |
+| `latestBuild` | int | 商店上架的最新 build，對應 csproj 的 `ApplicationVersion`。**唯一用於比對的欄位**，也是強制更新的唯一開關 |
 | `latestVersion` | string | 對應 csproj 的 `ApplicationDisplayVersion`，僅供顯示，不參與比對 |
-| `minSupportedBuild` | int | 低於此 build 視為強制更新。必須 ≤ `latestBuild` |
 | `releaseNotes` | string | 更新說明。空字串代表不顯示說明區塊 |
 
 ## App 端契約
 
 - 比對一律用整數：`latestBuild` vs `AppInfo.Current.BuildString`。**禁止字串比大小**
   （`"1.10.0" < "1.9.0"` 在字串比較下會得到錯誤結果）
+- **更新一律強制**：只要 `latestBuild` 高於本機 build 即提示，且提示無法略過。
+  本清單沒有「可略過的版本」這種狀態
+- **App 啟動後只檢查一次**；檢查失敗（含網路不通）在本次執行期間不重試，須冷啟動才會再檢查
 - 請求需加 cache-buster：`?t={unix timestamp}`，否則 CDN 與 HttpClient 快取會讓使用者拿到舊檔
 - 取不到 / 解析失敗 / 逾時 → 一律視為「無更新」，**不得阻擋登入或任何既有流程**
 - 商店網址寫死在 App 內，不從本檔取得（理由見下方鐵則 1）
@@ -74,8 +76,9 @@ https://cekinfos.github.io/version-manifest/cekapp/version.json
    使用者導向惡意安裝來源，而此時使用者正處於「App 叫我更新」的高信任狀態。商店網址一律寫死在
    App 內為常數。
 2. **不放任何機密。** public repo 全世界可讀，不得出現 API key、內部端點或帳號資訊。
-3. **`minSupportedBuild` 必須 ≤ `latestBuild`，且只能往上調。** 若設成高於 `latestBuild`，
-   全體使用者會被強制更新到一個不存在的版本，等同直接鎖死 App。
+3. **`latestBuild` 誤植會立刻鎖死全體使用者。** 更新一律強制，且 `latestBuild` 是唯一開關，
+   沒有第二道防線 —— 多打一位數就會讓所有人被要求更新到一個不存在的版本，且無法略過。
+   每次修改務必逐字核對 csproj 的 `ApplicationVersion`。
 4. **分平台各自維護。** iOS 審核比 Android 慢，共用一組版本號會讓 Android 使用者被提示一個
    iOS 尚未過審的版本。
 5. **push 前必須驗證 JSON 合法。** 一個多餘的逗號會讓全體使用者的版本檢查失敗。
