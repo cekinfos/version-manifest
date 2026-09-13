@@ -1,6 +1,6 @@
 {
     "schemaVersion": 1,
     "updatedAt"    : "2026-09-13T02:11:00Z",
-    "android"      : {"latestBuild": 260913001, "latestVersion": "1.13.6", "releaseNotes": ""},
-    "ios"          : {"latestBuild": 260913001, "latestVersion": "1.13.6", "releaseNotes": ""}
+    "android"      : {"latestBuild": 260913002, "latestVersion": "1.13.6", "releaseNotes": ""},
+    "ios"          : {"latestBuild": 260913002, "latestVersion": "1.13.6", "releaseNotes": ""}
 }
