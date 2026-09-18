@@ -15,14 +15,17 @@
 version-manifest/
 ├── .nojekyll           關閉 GitHub Pages 的 Jekyll 處理
 ├── README.md
-└── cekapp/
-    └── version.json    CekApp（志光雲）版本清單
+├── cekapp/
+│   └── version.json    CekApp（志光雲）版本清單
+└── liangsapp/
+    └── version.json    LiangsApp（良盛食品）版本清單
 ```
 
 ## 發布網址
 
 ```text
 https://cekinfos.github.io/version-manifest/cekapp/version.json
+https://cekinfos.github.io/version-manifest/liangsapp/version.json
 ```
 
 啟用步驟（整個 repo 只需做一次）：
@@ -98,3 +101,12 @@ TVBox 版以 APK 檔案側載派發，更新由既有的 APK 派發流程處理�
 不提供對應區塊。App 端在 `Release-STB` 建置中以 `#if STB` 完全停用版本檢查，不會讀取本清單。
 
 本清單刻意不儲存套件識別碼（見鐵則 1），上表僅供維運人員對照使用。
+
+## LiangsApp 發布通道
+
+LiangsApp 的 Android 與 iOS 商店版本共用同一份清單，兩個平台仍須依各自實際上架進度分開維護：
+
+| 通道 | 套件 / bundle id | manifest 區塊 |
+|------|------------------|---------------|
+| Android（Google Play） | `tw.com.liangs.LiangsApp` | `android` |
+| iOS（App Store） | `tw.com.liangs.LiangsApp` | `ios` |
